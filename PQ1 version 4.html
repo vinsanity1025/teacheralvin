@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Measurement Olympics</title>
+    
+    <script src="/_sdk/f87d0a976ef49e3b.element_sdk.js" integrity="sha512-rv/pMGLwgeKXDjlcSZ1AMgUtAX6QUpHCww30g9xHCLHzy+fZQs7/Pmn+Fn/rac3ihqVRhbBs6IGPJBVaqrUnPA=="></script>
+    <script src="/_sdk/458114e02319f6fb.data_sdk.js" type="text/javascript" integrity="sha512-MqxhlifLEIhxYPJAUg/WtiC5CY0R45RHAAwK31m2gePcEv6/zWdaNb/OHXNXZYtkB4TsvIOYMOacwywX7AXC3g=="></script>
+    
+    <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-color: #0a1428;
+            --panel-bg: rgba(13, 27, 42, 0.9);
+            --primary: #00d9ff;
+            --secondary: #00ffa3;
+            --accent: #6366f1;
+            --danger: #ff3366;
+            --text-main: #e8f1f5;
+            --text-muted: #a0b5c7;
+            --card-border: rgba(0, 217, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a1428 0%, #1a2f4a 50%, #0d1b2a 100%);
+            color: var(--text-main);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .app-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            min-height: 100%;
+        }
+
+        .container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        h1, h2, h3 { 
+            color: var(--primary);
+            text-align: center; 
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+            margin-top: 0;
+            font-weight: 700;
+        }
+
+        h1 { font-size: 32px; margin-bottom: 10px; }
+        h2 { font-size: 24px; margin-bottom: 25px; }
+        p { line-height: 1.7; color: var(--text-main); }
+
+        .section { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        small {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 10px 0 20px 0;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1.5px solid var(--text-muted);
+            border-radius: 12px;
+            color: var(--primary);
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 217, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #0a1428;
+            border: none;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2);
+            margin-bottom: 10px;
+        }
+
+        button:hover { 
+            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary { 
+            background: linear-gradient(135deg, var(--accent) 0%, #818cf8 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .scenario-box {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(0, 255, 163, 0.05) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 18px;
+            min-height: 80px;
+            border: 1px solid var(--card-border);
+        }
+
+        .feedback {
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            display: none;
+            text-align: center;
+            border: 1.5px solid;
+        }
+
+        .correct { 
+            background: rgba(0, 255, 163, 0.1); 
+            color: var(--secondary); 
+            border-color: var(--secondary);
+            box-shadow: 0 4px 15px rgba(0, 255, 163, 0.1);
+        }
+        
+        .incorrect { 
+            background: rgba(255, 51, 102, 0.1); 
+            color: var(--danger); 
+            border-color: var(--danger);
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.1);
+        }
+
+        .instruction-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(0, 217, 255, 0.05) 100%);
+            border: 1.5px solid rgba(99, 102, 241, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .rubric-box {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border: 1.5px solid var(--card-border);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .rubric-table th, .rubric-table td {
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            padding: 12px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .rubric-table th {
+            color: var(--secondary);
+            background: rgba(0, 255, 163, 0.08);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .rubric-table td { background: rgba(0, 217, 255, 0.03); }
+
+        .drive-link {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            color: var(--primary);
+            text-decoration: none;
+            padding: 16px;
+            border: 1.5px solid var(--card-border);
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin: 20px 0;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .drive-link:hover {
+            background: rgba(0, 217, 255, 0.15);
+            box-shadow: 0 6px 20px rgba(0, 217, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        #report-area {
+            width: 100%;
+            height: 280px;
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(10, 20, 40, 0.8);
+            color: var(--secondary);
+            resize: none;
+            padding: 16px;
+            box-sizing: border-box;
+            border: 1.5px solid var(--card-border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: rgba(255, 51, 102, 0.1);
+            border: 1.5px solid var(--danger);
+            color: #ff6b94;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-display {
+            color: var(--secondary);
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0, 255, 163, 0.3);
+            text-align: right;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .button-group button { flex: 1; margin: 0; }
+
+        code {
+            color: var(--primary);
+            background: rgba(0, 217, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        ol { line-height: 1.9; color: var(--text-main); }
+        li { margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+  <div class="app-wrapper">
+   <div class="container">
+    <div id="intro" class="section active">
+     <h1>The Measurement Olympics</h1>
+     <p>Welcome to the laboratory activity. Please enter your group details below to begin the assessment on accuracy, precision, and error analysis.</p>
+     <div id="introError" class="error-message"></div>
+     <label><b>Section:</b></label> <input type="text" id="sectionName" placeholder="e.g., STEM-A"> 
+     <label><b>Group Number:</b></label> <input type="number" id="groupNum" placeholder="e.g., 1" min="1"> 
+     <label><b>Group Members (comma separated):</b></label> <input type="text" id="groupNames" placeholder="e.g., Alex, Maria, John, Sarah"> 
+     <button onclick="startApp()">Begin Activity</button>
+    </div>
+    
+    <div id="round1" class="section">
+     <h2>Round 1: Target Toss Evaluation</h2>
+     <div class="rubric-box">
+      <h3 style="margin-top: 0; font-size: 16px;">SCORING RUBRIC (10 Points)</h3>
+      <table class="rubric-table">
+       <tbody>
+        <tr>
+         <th width="20%">Criteria</th>
+         <th width="20%">Excellent</th>
+         <th width="20%">Very Good</th>
+         <th width="20%">Fair</th>
+         <th width="20%">Poor</th>
+        </tr>
+        <tr>
+         <td><b>Classification (4 pts)</b></td>
+         <td><b>(4)</b> Correctly and flawlessly identifies accuracy &amp; precision.</td>
+         <td><b>(3.5)</b> Correctly identifies one concept but misjudges the other.</td>
+         <td><b>(3)</b> Misidentifies both, but recognizes a distinct visual pattern.</td>
+         <td><b>(2.5)</b> Completely incorrect or no definitive classification.</td>
+        </tr>
+        <tr>
+         <td><b>Clarity of Explanation (6 pts)</b></td>
+         <td><b>(6)</b> Explicitly links spread to precision &amp; distance to accuracy with terminology.</td>
+         <td><b>(5.5)</b> Explains correctly but justification is generic without direct data reference.</td>
+         <td><b>(5)</b> Vague explanation; confuses definitions of precision/accuracy.</td>
+         <td><b>(4.5)</b> No scientific justification or relies on non-scientific reasoning.</td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+     <div class="instruction-box">
+      <b>Procedure:</b> Draw a circular target with a clearly marked center (representing the true value) on the chalkboard using chalk. Each group member must stand exactly 3 meters away from the board. One by one, throw a small, damp paper wad at the target to leave a temporary mark.<br><br><b>Documentation Requirement:</b> Take a clear photograph of the final cluster of marks on the board. You will be required to upload this image to the designated Google Drive folder at the end of the activity.
+     </div>
+     <div id="r1Error" class="error-message"></div>
+     <label><b>Classify your group's overall performance:</b></label> 
+     <select id="r1Class"> 
+        <option value="">-- Select Classification --</option> 
+        <option value="High Accuracy, High Precision">High Accuracy, High Precision</option> 
+        <option value="High Accuracy, Low Precision">High Accuracy, Low Precision</option> 
+        <option value="Low Accuracy, High Precision">Low Accuracy, High Precision</option> 
+        <option value="Low Accuracy, Low Precision">Low Accuracy, Low Precision</option> 
+     </select> 
+     <label><b>Scientific Justification:</b><br><small>(Provide a detailed explanation for your choice, explicitly referencing the visual spread of the marks and their proximity to the center.)</small></label> 
+     <textarea id="r1Justify" rows="5" placeholder="Enter your scientific justification here..."></textarea> 
+     <button onclick="nextSection('round2')">Submit Analysis &amp; Proceed</button>
+    </div>
+    
+    <div id="round2" class="section">
+     <h2>Round 2: Error Identification</h2>
+     <div class="rubric-box">
+      <h3 style="margin-top: 0; font-size: 16px;">SCORING RUBRIC (10 Points)</h3>
+      <p style="margin: 0;">This round consists of 10 distinct, binary scenarios. A traditional descriptive rubric is replaced by a strict point-per-item system to ensure objective grading.<br><b>Scoring:</b> 1 point awarded for each correctly classified scenario. Total Possible: 10 Points.</p>
+     </div>
+     <p>Carefully read each measurement scenario presented below. Determine whether the situation describes a <b>Systematic Error</b> (a consistent, predictable deviation) or a <b>Random Error</b> (an unpredictable fluctuation).</p>
+     <div class="score-display">
+      Score: <span id="r2ScoreDisplay">0</span>/10
+     </div>
+     <div class="scenario-box" id="scenarioText">
+      Loading scenario data...
+     </div>
+     <div id="r2Buttons" class="button-group">
+      <button onclick="checkAnswer('Systematic')">Systematic Error</button> 
+      <button class="btn-secondary" onclick="checkAnswer('Random')">Random Error</button>
+     </div>
+     <div id="r2Feedback" class="feedback"></div>
+     <button id="nextScenarioBtn" style="display:none;" onclick="loadNextScenario()">Proceed to Next Scenario</button>
+    </div>
+    
+    <div id="round3" class="section">
+     <h2>Round 3: Pendulum Time Trials</h2>
+     <div class="rubric-box">
+      <h3 style="margin-top: 0; font-size: 16px;">SCORING RUBRIC (10 Points)</h3>
+      <table class="rubric-table">
+       <tbody>
+        <tr>
+         <th width="20%">Criteria</th>
+         <th width="20%">Excellent</th>
+         <th width="20%">Very Good</th>
+         <th width="20%">Fair</th>
+         <th width="20%">Poor</th>
+        </tr>
+        <tr>
+         <td><b>Math Process &amp; Doc. (5 pts)</b></td>
+         <td><b>(5)</b> Documents raw data table, mean calculation, deviations, &amp; variance formula.</td>
+         <td><b>(4.5)</b> Shows most steps but skips intermediate individual deviations.</td>
+         <td><b>(4)</b> Work is disorganized; intermediate steps proving formula are missing.</td>
+         <td><b>(3.5)</b> Illegible, missing entirely, or wrong formula utilized.</td>
+        </tr>
+        <tr>
+         <td><b>Accuracy &amp; Format (5 pts)</b></td>
+         <td><b>(5)</b> Mean/variance flawless. Includes correct units &amp; sig figs.</td>
+         <td><b>(4.5)</b> Minor arithmetic error, but procedural logic is sound.</td>
+         <td><b>(4)</b> Major procedural calculation error (e.g., dividing by N instead of N-1).</td>
+         <td><b>(3.5)</b> Variance is completely incorrect due to cascading errors; units absent.</td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+     <div class="instruction-box">
+      <b>Procedure:</b> Construct a simple pendulum using a string measuring exactly 50 centimeters and a heavy mass. Displace the pendulum slightly and release it. Use a stopwatch to measure the time it takes for the pendulum to complete exactly 5 full oscillations (swings back and forth). Repeat this process for a total of 5 independent trials.<br><br><b>Documentation Requirement:</b> On a separate sheet of paper, calculate the mean of your times and the sample variance. Take a clear photograph of your complete, step-by-step mathematical solution to upload to the Drive later.
+     </div>
+     <div id="r3Error" class="error-message"></div>
+     <label>Trial 1 (Recorded in seconds):</label> <input type="number" id="t1" step="0.01" min="0"> 
+     <label>Trial 2 (Recorded in seconds):</label> <input type="number" id="t2" step="0.01" min="0"> 
+     <label>Trial 3 (Recorded in seconds):</label> <input type="number" id="t3" step="0.01" min="0"> 
+     <label>Trial 4 (Recorded in seconds):</label> <input type="number" id="t4" step="0.01" min="0"> 
+     <label>Trial 5 (Recorded in seconds):</label> <input type="number" id="t5" step="0.01" min="0"> 
+     <button onclick="generateReport()">Compile Final Data Report</button>
+    </div>
+    
+    <div id="report" class="section">
+     <h2>Laboratory Report Ready</h2>
+     <textarea id="report-area" readonly></textarea> 
+     <button onclick="copyReport(this)">⬇️ 1. Download Report as PDF</button>
+     <div class="instruction-box" style="border-color: var(--primary); background: rgba(0, 217, 255, 0.05);">
+      <h3 style="margin-top:0; font-size: 16px;">📋 FINAL SUBMISSION INSTRUCTIONS</h3>
+      <ol style="margin-bottom: 0;">
+       <li>The PDF report has been downloaded to your device. This is an official, uneditable record of your data.</li>
+       <li>Click the designated Google Drive link below to access the submission directory.</li>
+       <li>Locate the folder corresponding exactly to your <b>Section</b>.</li>
+       <li>Within your Section's folder, create a new subfolder named: <b>Group <span id="displayGroup"></span></b>.</li>
+       <li>Upload the PDF report file to your group folder.</li>
+       <li>Upload the photograph of your Round 1 target board and rename the file to: <br><code>[Section]_Group[Num]_R1_Target.jpg</code></li>
+       <li>Upload the photograph of your Round 3 mathematical solution and rename the file to:<br><code>[Section]_Group[Num]_R3_Solution.jpg</code></li>
+      </ol>
+     </div>
+     <a href="https://drive.google.com/drive/folders/1dmE_hjtPv1jvDQujGaWg2yw8A_wrLiAw?usp=drive_link" target="_blank" rel="noopener noreferrer" class="drive-link">📁 2. Access Google Drive Submission Folder</a>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    let sectionName = "";
+    let groupNum = "";
+    let groupNames = "";
+    let r2Score = 0;
+    let currentScenario = 0;
+    
+    const scenarios = [
+        { text: "1. Measuring length with a metal tape measure that has expanded on a hot day.", answer: "Systematic" },
+        { text: "2. Reading the volume on a graduated cylinder from slightly different head angles each time.", answer: "Random" },
+        { text: "3. Using a digital scale that always reads 0.5 g when empty.", answer: "Systematic" },
+        { text: "4. Fluctuations in a circuit's electrical current due to a loose wire connection.", answer: "Random" },
+        { text: "5. Timing a sprint with a stopwatch, but having slightly varying reaction times.", answer: "Random" },
+        { text: "6. Measuring an experiment with a wall clock that runs 5 minutes fast.", answer: "Systematic" },
+        { text: "7. A sensitive thermometer placed in a drafty room, causing the reading to jump up and down.", answer: "Random" },
+        { text: "8. Using a voltmeter that was improperly calibrated at the factory.", answer: "Systematic" },
+        { text: "9. Wind gusts slightly altering the landing spot of a projectile during 10 separate trials.", answer: "Random" },
+        { text: "10. Measuring liquid with a beaker that has a permanent manufacturing defect altering its shape.", answer: "Systematic" }
+    ];
+
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function showError(elementId, message) {
+        const errorEl = document.getElementById(elementId);
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
+
+    function hideError(elementId) {
+        const errorEl = document.getElementById(elementId);
+        errorEl.classList.remove('show');
+    }
+
+    function startApp() {
+        hideError('introError');
+        sectionName = document.getElementById('sectionName').value.trim();
+        groupNum = document.getElementById('groupNum').value.trim();
+        groupNames = document.getElementById('groupNames').value.trim();
+        
+        if (!sectionName || !groupNum || !groupNames) {
+            showError('introError', 'Please enter your Section, Group Number, and Member Names to proceed.');
+            return;
+        }
+        showSection('round1');
+    }
+
+    function nextSection(id) {
+        if (id === 'round2') {
+            hideError('r1Error');
+            let r1Class = document.getElementById('r1Class').value;
+            let r1Justify = document.getElementById('r1Justify').value.trim();
+            if(!r1Class || !r1Justify) {
+                showError('r1Error', 'Please select a classification and provide a scientific justification.');
+                return;
+            }
+            loadScenario();
+        }
+        showSection(id);
+    }
+
+    function loadScenario() {
+        document.getElementById('r2Buttons').style.display = 'flex';
+        document.getElementById('nextScenarioBtn').style.display = 'none';
+        document.getElementById('r2Feedback').style.display = 'none';
+        
+        if (currentScenario < scenarios.length) {
+            document.getElementById('scenarioText').innerText = scenarios[currentScenario].text;
+        } else {
+            showSection('round3');
+        }
+    }
+
+    function checkAnswer(selected) {
+        let correctAns = scenarios[currentScenario].answer;
+        let feedbackDiv = document.getElementById('r2Feedback');
+        
+        document.getElementById('r2Buttons').style.display = 'none';
+        feedbackDiv.style.display = 'block';
+        
+        if (selected === correctAns) {
+            r2Score++;
+            document.getElementById('r2ScoreDisplay').innerText = r2Score;
+            feedbackDiv.innerHTML = "✓ Assessment Correct. This describes a " + correctAns + " Error.";
+            feedbackDiv.className = "feedback correct";
+        } else {
+            feedbackDiv.innerHTML = "✗ Assessment Incorrect. The correct classification is " + correctAns + " Error.";
+            feedbackDiv.className = "feedback incorrect";
+        }
+        
+        document.getElementById('nextScenarioBtn').style.display = 'block';
+    }
+
+    function loadNextScenario() {
+        currentScenario++;
+        loadScenario();
+    }
+
+    function generateReport() {
+        hideError('r3Error');
+        let t1Val = parseFloat(document.getElementById('t1').value);
+        let t2Val = parseFloat(document.getElementById('t2').value);
+        let t3Val = parseFloat(document.getElementById('t3').value);
+        let t4Val = parseFloat(document.getElementById('t4').value);
+        let t5Val = parseFloat(document.getElementById('t5').value);
+
+        if (isNaN(t1Val) || isNaN(t2Val) || isNaN(t3Val) || isNaN(t4Val) || isNaN(t5Val)) {
+            showError('r3Error', 'Please enter valid numbers for all 5 trial times.');
+            return;
+        }
+
+        document.getElementById('displayGroup').innerText = groupNum;
+
+        let safeSec = sectionName.replace(/\s+/g, '_');
+        let safeGrp = groupNum.replace(/\s+/g, '');
+
+        let times = [t1Val, t2Val, t3Val, t4Val, t5Val];
+        
+        // Calculate mean - kept as number for math process
+        let sum = times.reduce((a, b) => a + b, 0);
+        let meanNum = sum / times.length; 
+        
+        // Calculate variance using raw number
+        let deviations = times.map(t => Math.pow(t - meanNum, 2));
+        let varianceNum = deviations.reduce((a, b) => a + b, 0) / (times.length - 1);
+
+        // Convert to string formats only for displaying
+        let mean = meanNum.toFixed(3);
+        let variance = varianceNum.toFixed(4);
+
+        let report = `=== MEASUREMENT OLYMPICS LABORATORY DATA ===\n`;
+        report += `Section: ${sectionName}\n`;
+        report += `Group: ${groupNum}\n`;
+        report += `Members: ${groupNames}\n`;
+        report += `============================================\n\n`;
+        report += `[ROUND 1: Target Toss Evaluation]\n`;
+        report += `Classification: ${document.getElementById('r1Class').value}\n`;
+        report += `Justification: ${document.getElementById('r1Justify').value}\n`;
+        report += `*Image Attachment: ${safeSec}_Group${safeGrp}_R1_Target.jpg\n\n`;
+        report += `[ROUND 2: Error Identification]\n`;
+        report += `Final Score: ${r2Score} / 10\n\n`;
+        report += `[ROUND 3: Pendulum Time Trials]\n`;
+        report += `Trial 1: ${t1Val}s | Trial 2: ${t2Val}s | Trial 3: ${t3Val}s\n`;
+        report += `Trial 4: ${t4Val}s | Trial 5: ${t5Val}s\n`;
+        report += `Mean Time: ${mean}s\n`;
+        report += `Sample Variance: ${variance}s²\n`;
+        report += `*Solution Attachment: ${safeSec}_Group${safeGrp}_R3_Solution.jpg\n`;
+
+        document.getElementById('report-area').value = report;
+        
+        // Update instruction code blocks
+        let codes = document.querySelectorAll('.instruction-box code');
+        if (codes.length >= 2) {
+            codes[0].innerText = `${safeSec}_Group${safeGrp}_R1_Target.jpg`;
+            codes[1].innerText = `${safeSec}_Group${safeGrp}_R3_Solution.jpg`;
+        }
+
+        showSection('report');
+    }
+
+    function copyReport(btn) {
+        let reportText = document.getElementById('report-area').value;
+        
+        // Disable button during generation
+        btn.disabled = true;
+        let originalText = btn.innerText;
+        btn.innerText = "⏳ Generating PDF...";
+        
+        setTimeout(() => {
+            try {
+                // Instantiate jsPDF 
+                const { jsPDF } = window.jspdf;
+                if (!jsPDF) {
+                    throw new Error("jsPDF library failed to load correctly.");
+                }
+
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 12;
+                const lineHeight = 6;
+                const maxWidth = pageWidth - 2 * margin;
+                
+                // Title
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 100, 150);
+                doc.text('MEASUREMENT OLYMPICS', pageWidth / 2, margin + 8, { align: 'center' });
+                doc.text('LABORATORY REPORT', pageWidth / 2, margin + 16, { align: 'center' });
+                
+                // Divider line
+                doc.setDrawColor(0, 150, 200);
+                doc.line(margin, margin + 20, pageWidth - margin, margin + 20);
+                
+                // Content
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(30, 30, 30);
+                
+                let yPosition = margin + 28;
+                const lines = reportText.split('\n');
+                
+                lines.forEach(line => {
+                    if (line.trim() === '') {
+                        yPosition += 3;
+                        return;
+                    }
+                    
+                    const wrappedLines = doc.splitTextToSize(line, maxWidth);
+                    wrappedLines.forEach(wrappedLine => {
+                        if (yPosition > pageHeight - margin - 5) {
+                            doc.addPage();
+                            yPosition = margin + 5;
+                        }
+                        doc.text(wrappedLine, margin, yPosition);
+                        yPosition += lineHeight;
+                    });
+                });
+                
+                // Footer with page numbers (Fixed implementation)
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+                }
+                
+                // Generate filename
+                const filename = `${sectionName.replace(/\s+/g, '_')}_Group${groupNum}_Report.pdf`;
+                
+                // Use doc.save() which triggers browser's save dialog
+                doc.save(filename);
+                
+                setTimeout(() => {
+                    btn.innerText = "✓ PDF Downloaded!";
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                }, 500);
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                btn.innerText = "❌ Error generating PDF";
+                btn.disabled = false;
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 2000);
+            }
+        }, 100);
+    }
+
+    // Initialize SDK
+    if(window.elementSdk) {
+        window.elementSdk.init({
+            defaultConfig: {},
+            onConfigChange: async () => {},
+            mapToCapabilities: () => ({
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            }),
+            mapToEditPanelValues: () => new Map()
+        });
+    }
+  </script>
+</body>
+</html>
